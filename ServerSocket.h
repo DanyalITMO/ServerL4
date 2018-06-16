@@ -12,9 +12,14 @@
 #include <arpa/inet.h>
 
 
-class SocketWrapper {
+class ServerSocket {
 public:
-    explicit SocketWrapper(int port);
+    explicit ServerSocket(int port);
+    void accept();
+
+private:
+    std::size_t _buf_size{1024};
+    int _listener;
 };
 
 
