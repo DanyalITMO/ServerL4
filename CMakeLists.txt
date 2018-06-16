@@ -3,4 +3,4 @@ project(server)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(server main.cpp ServerSocket.cpp ServerSocket.h DataSocket.cpp DataSocket.h)
+add_executable(server main.cpp ServerSocket.cpp ServerSocket.h DataSocket.cpp DataSocket.h Statistic.cpp Statistic.h Helper.cpp Helper.h)
