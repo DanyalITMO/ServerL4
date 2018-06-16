@@ -3,4 +3,14 @@ project(server)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(server main.cpp ServerSocket.cpp ServerSocket.h DataSocket.cpp DataSocket.h Statistic.cpp Statistic.h Helper.cpp Helper.h)
+
+set(SOURCES
+    source/DataSocket.cpp
+    source/Helper.cpp
+    source/main.cpp
+    source/ServerSocket.cpp
+    source/Statistic.cpp
+)
+include_directories(include)
+
+add_executable(server ${SOURCES})
