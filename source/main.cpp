@@ -12,31 +12,38 @@
 int main() {
 
     ServerSocket socketWrapper{3425};
-    auto sock = socketWrapper.accept();
-    DataSocket dataSocket{sock};
-    auto r = dataSocket.recv();
-//TODO if r empty
-    Statistic stats;
-    auto numbers = filterNumber(r);
-    stats.add(numbers);
-    std::string res;
-    res += "Max: " + std::to_string(stats.getMax()) + "\n"
-            + " Min: " + std::to_string(stats.getMin()) + "\n"
-           + " Sum: " + std::to_string(stats.getSum()) + "\n";
 
-    res += "Sort: \n";
-    for(auto&& it : stats.getSort())
+    while (true)
     {
-        res += std::to_string(it) + ",";
+        auto sock = socketWrapper.accept();
+        DataSocket dataSocket{sock};
+
+        auto r = dataSocket.recv();
+        try {
+            Statistic stats;
+            auto numbers = filterNumber(r);
+            if (numbers.empty()) {
+                dataSocket.send("Can't find number in the incoming message");
+                continue;
+            }
+            stats.add(numbers);
+            std::string res;
+            res += "Max: " + std::to_string(stats.getMax()) + "\n"
+                   + " Min: " + std::to_string(stats.getMin()) + "\n"
+                   + " Sum: " + std::to_string(stats.getSum()) + "\n";
+
+            res += "Sort: \n";
+            for (auto &&it : stats.getSort()) {
+                res += std::to_string(it) + ",";
+            }
+            res.pop_back();
+            dataSocket.send(res);
+        }
+        catch (const std::exception &ex) {
+            dataSocket.send("Error");
+            std::cerr << ex.what();
+        }
     }
-    res.pop_back();
-
-//    for(auto&& it : numbers)
-//        std::cout<<"ret it: " << it<<std::endl;
-//    std::cout<<r<<std::endl;
-    dataSocket.send(res);
-
-
 
     return 0;
 }
