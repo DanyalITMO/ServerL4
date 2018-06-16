@@ -11,64 +11,55 @@
 #include <regex>
 #include <iostream>
 
-void printNumber(const std::string& str) {
-    std::smatch match;
-    if (std::regex_search(str, match, std::regex{"\\d"})) {
-        for(std::size_t  i = 0; i < match.size(); i++)
-        {
-            std::cout<<match[i];
-        }
-    }
+void printNumber(const std::string &str) {
+    std::regex r{R"((\d))"};
 
+    for(std::sregex_iterator pos(std::cbegin(str), std::cend(str), r); pos != std::sregex_iterator{}; ++pos)
+    {
+        std::cout<<pos->str(1)<<std::endl;
+    }
 }
 
-int main(int argc, char *argv[]) {
-    const int  buff_size = 1025;
-    int listenfd = 0, connfd = 0;
-    struct sockaddr_in serv_addr;
+int main() {
+    int sock, listener;
+    struct sockaddr_in addr;
+    char buf[1024];
+    int bytes_read;
 
-    char sendBuff[buff_size];
-    time_t ticks;
-
-    listenfd = socket(AF_INET, SOCK_STREAM, 0);
-    memset(&serv_addr, '0', sizeof(serv_addr));
-    memset(sendBuff, '0', sizeof(sendBuff));
-
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(5000);
-
-    bind(listenfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-
-    listen(listenfd, 10);
-
-    struct sockaddr_in client;
-    int client_fd, server_fd;
-    while (1) {
-        socklen_t client_len = sizeof(client);
-        client_fd = accept(server_fd, (struct sockaddr *) &client, &client_len);
-
-        if (client_fd < 0) std::cerr << "Could not establish new connection\n";
-
-        while (1) {
-            int read = recv(client_fd, sendBuff, buff_size, 0);
-
-            if (!read) break; // done reading
-            if (read < 0) std::cerr<<"Client read failed\n";
-
-            int err = send(client_fd, sendBuff, read, 0);
-            if (err < 0) std::cerr << "Client write failed\n";
-        }
+    listener = socket(AF_INET, SOCK_STREAM, 0);
+    if (listener < 0) {
+        perror("socket");
+        exit(1);
     }
-    /*
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(3425);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    if (bind(listener, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+        perror("bind");
+        exit(2);
+    }
+
+    listen(listener, 1);
+
     while (1) {
-        connfd = accept(listenfd, (struct sockaddr *) NULL, NULL);
+        sock = accept(listener, NULL, NULL);
+        if (sock < 0) {
+            perror("accept");
+            exit(3);
+        }
 
-        ticks = time(NULL);
-        snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
-        write(connfd, sendBuff, strlen(sendBuff));
+//        while(1)
+//        {
+        bytes_read = recv(sock, buf, 1024, 0);
+        std::string t(buf);
+        printNumber(t);
+//            if(bytes_read <= 0) break;
+        send(sock, buf, bytes_read, 0);
+//        }
 
-        close(connfd);
-        sleep(1);
-    }*/
+        close(sock);
+    }
+
+    return 0;
 }
