@@ -15,7 +15,8 @@
 class ServerSocket {
 public:
     explicit ServerSocket(int port);
-    void accept();
+    ~ServerSocket();
+    int accept();
 
 private:
     std::size_t _buf_size{1024};

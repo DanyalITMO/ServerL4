@@ -16,7 +16,7 @@
 #include "ServerSocket.h"
 
 #include <cstdio>
-#include <cstdlib>
+
 #include "ServerSocket.h"
 
 ServerSocket::ServerSocket(int port) {
@@ -39,35 +39,20 @@ ServerSocket::ServerSocket(int port) {
     listen(_listener, 1);
 }
 
-void printNumber(const std::string &str) {
-    std::regex r{R"((\d))"};
-
-    for(std::sregex_iterator pos(std::cbegin(str), std::cend(str), r); pos != std::sregex_iterator{}; ++pos)
-    {
-        std::cout<<pos->str(1)<<std::endl;
-    }
-}
-
-void ServerSocket::accept() {
+int ServerSocket::accept() {
     int sock;
 //    std::size_t bytes_read;
-    char buf[_buf_size];
-
     sock = ::accept(_listener, nullptr, nullptr);
     if (sock < 0) {
         perror("accept");
         exit(3);
     }
 
-    auto bytes_read = recv(sock, buf, _buf_size, 0);// ret ssize t
-    std::string t(buf);
-    printNumber(t);
-
-    if(bytes_read <= 0) return;
-    send(sock, buf, bytes_read, 0);
-//        }
-
-    close(sock);
+    return sock;
+}
+ServerSocket::~ServerSocket()
+{
+    close(_listener);
 }
 
 
