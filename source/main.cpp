@@ -4,26 +4,24 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <iostream>
-#include "ServerSocket.h"
-#include "DataSocket.h"
+#include "TCPServer.h"
+#include "TCPSession.h"
 #include "Helper.h"
 #include "Statistic.h"
 
 int main() {
 
-    ServerSocket socketWrapper{3425};
+    TCPServer socketWrapper{3425};
 
     while (true)
     {
-        auto sock = socketWrapper.accept();
-        DataSocket dataSocket{sock};
-
-        auto r = dataSocket.recv();
+        auto dataSocket = socketWrapper.accept();
+        auto r = dataSocket->recv();
         try {
             Statistic stats;
             auto numbers = filterNumber(r);
             if (numbers.empty()) {
-                dataSocket.send("Can't find number in the incoming message");
+                dataSocket->send("Can't find number in the incoming message");
                 continue;
             }
             stats.add(numbers);
@@ -37,10 +35,10 @@ int main() {
                 res += std::to_string(it) + ",";
             }
             res.pop_back();
-            dataSocket.send(res);
+            dataSocket->send(res);
         }
         catch (const std::exception &ex) {
-            dataSocket.send("Error");
+            dataSocket->send("Error");
             std::cerr << ex.what();
         }
     }

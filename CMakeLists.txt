@@ -5,12 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 set(SOURCES
-    source/DataSocket.cpp
-    source/Helper.cpp
-    source/main.cpp
-    source/ServerSocket.cpp
-    source/Statistic.cpp
+        source/Helper.cpp
+        source/main.cpp
+        source/Statistic.cpp
 )
 include_directories(include)
 
 add_executable(server ${SOURCES})
+target_link_libraries(server network)
